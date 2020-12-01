@@ -1,7 +1,17 @@
-GREEN = '\033[32m'
-PRETTY_GREEN = '\033[31m'
-END_COLOR = '\033[0m'
+import re
+from termcolor import colored
 
-result=GREEN+"and"
-result += PRETTY_GREEN + "reea" + END_COLOR
-print(result)
+regex=re.compile(r"\d+")
+
+
+file=open("words.txt")
+lines=file.readlines()
+for line in lines:
+    print(regex)
+    m=re.findall(regex, line)
+    print(m)
+    if m:
+        for i in m:
+            lista=line.split(i, 1)
+            line=lista[0]+colored(i, 'red')+lista[1]
+        print(line)
