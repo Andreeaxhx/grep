@@ -1,29 +1,40 @@
-import re
-from colorama import Fore, Back, Style, init
+import re, sys, os
+from colorama import init
 from termcolor import colored
-import sys
-import os
+from argparse import ArgumentParser
 
 init()
 
-def file_search(regex, face_match, path, ignore_case, count): #regex=expresia regulata;
+def parser():
+    parser=ArgumentParser(description="Equivalent of grep command in linux")
+    parser.add_argument("pattern", type=str, help="search for patterns in each file")
+    parser.add_argument("file", metavar="FILE", help="the file to search")
+    parser.add_argument("-reg", action="store_true", help="regex pattern")
+    parser.add_argument("-R", "-r", "--recursive", action="store_true", help="recursive search")
+    parser.add_argument("-L", "--files-without-match", action="store_true", help="some pattern does NOT match the file")
+    parser.add_argument("-c", "--count", action="store_true", help="number of lines that match the pattern")
+    parser.add_argument("-i", "--ignore-case", action="store_true", help="case-insensitive option")
+
+    return parser
+
+def file_search(pattern, file_path, regex, recursive, files_without_match, count, ignore_case): #regex=expresia regulata;
                                           #face_match=valoare booleana setata in functie de argumentul NOT;
                                           #path_to_file=path ul catre file ul in care vrem sa se caute regex
     match=False #presupunem ca regex nu face match cu niciun cuvant din file
     nr_of_matches=0
 
-    if os.path.isfile(path):
-        file=open(path)
-        print("-----", path)
+    if os.path.isfile(file_path):
+        file=open(file_path)
+        print("-----", file_path)
         lines=file.readlines() #se citeste file ul linic cu linie
         for line in lines:
             if ignore_case:
-                matches_of_regex=re.findall(regex, line, flags=re.IGNORECASE)
+                matches_of_regex=re.findall(pattern, line, flags=re.IGNORECASE)
             else:
-                matches_of_regex = re.findall(regex, line)
+                matches_of_regex = re.findall(pattern, line)
             if matches_of_regex:
                 match=True
-                if face_match==True:
+                if files_without_match:
 
                     for i in matches_of_regex:
                         lista=line.split(i, 1)
@@ -33,38 +44,20 @@ def file_search(regex, face_match, path, ignore_case, count): #regex=expresia re
                     nr_of_matches+=1
         if count:
             print(colored("Number of matches:", "green"), nr_of_matches)
-        if match==False and face_match==False:
+        if match==False and files_without_match==False:
             print("regex nu face match in file")
 
-    elif os.path.isdir(path):
+    elif os.path.isdir(file_path):
 
-        for f in os.listdir(path):
+        for f in os.listdir(file_path):
 
-            if os.path.isfile(path+"\\"+f):
-                file_search(regex, face_match, path+"\\"+f, ignore_case, count)
+            if os.path.isfile(file_path+"\\"+f):
+                file_search(pattern, file_path+"\\"+f, regex, recursive, files_without_match, count, ignore_case)
 
 
-list_of_arguments=sys.argv
-#print(len(list_of_arguments))
+parser=parser()
+arguments=parser.parse_args()
+pattern=arguments.pattern
+file=arguments.file
 
-if len(list_of_arguments)!=6:
-    print("please insert all arguments")
-    exit()
-elif list_of_arguments[1]=="NOT":
-    if list_of_arguments[4]=="-ignoreCase" and list_of_arguments[5]=="-count":
-        file_search(list_of_arguments[2], False, list_of_arguments[3], True, True)
-    elif list_of_arguments[4]=="-ignoreCase" and list_of_arguments[5]!="-count":
-        file_search(list_of_arguments[2], False, list_of_arguments[3], True, False)
-    elif list_of_arguments[4]!="-ignoreCase" and list_of_arguments[5]=="-count":
-        file_search(list_of_arguments[2], False, list_of_arguments[3], False, True)
-    elif list_of_arguments[4]!="-ignoreCase" and list_of_arguments[5]!="-count":
-        file_search(list_of_arguments[2], False, list_of_arguments[3], False, False)
-elif list_of_arguments[1]!="NOT":
-    if list_of_arguments[4]=="-ignoreCase" and list_of_arguments[5]=="-count":
-        file_search(list_of_arguments[2], True, list_of_arguments[3], True, True)
-    elif list_of_arguments[4]=="-ignoreCase" and list_of_arguments[5]!="-count":
-        file_search(list_of_arguments[2], True, list_of_arguments[3], True, False)
-    elif list_of_arguments[4]!="-ignoreCase" and list_of_arguments[5]=="-count":
-        file_search(list_of_arguments[2], True, list_of_arguments[3], False, True)
-    elif list_of_arguments[4]!="-ignoreCase" and list_of_arguments[5]!="-count":
-        file_search(list_of_arguments[2], True, list_of_arguments[3], False, False)
+file_search(pattern, file, arguments.reg, arguments.recursive, arguments.files_without_match, arguments.count, arguments.ignore_case)
