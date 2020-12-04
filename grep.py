@@ -40,9 +40,9 @@ def search(pattern, file_path, is_file, regex, recursive, files_without_match, c
                             line=lista[0]+colored(i, 'red')+lista[1]
                         line=line.replace("\n", "")
                         if count==False:
-                            if is_file:
+                            if is_file and files_without_match==False:
                                 print(line)
-                            else:
+                            elif files_without_match==False:
                                 print(colored(file_path, 'magenta')+":"+line)
                         nr_of_matches+=1
             else:
@@ -58,9 +58,9 @@ def search(pattern, file_path, is_file, regex, recursive, files_without_match, c
                         line=line[:index]+colored(line[index:index+len(pattern)], 'red')+line[index+len(pattern):]
                         line=line.replace("\n", '')
                         if count == False:
-                            if is_file:
+                            if is_file and files_without_match==False:
                                 print(line)
-                            else:
+                            elif files_without_match==False:
                                 print(colored(file_path, "magenta")+":"+line)
                 else:
                     if line.find(pattern)>=0:
@@ -69,16 +69,18 @@ def search(pattern, file_path, is_file, regex, recursive, files_without_match, c
                         line=line.replace(pattern, colored(pattern, "red"))
                         line=line.replace("\n", '')
                         if count == False:
-                            if is_file:
+                            if is_file and files_without_match==False:
                                 print(line)
-                            else:
+                            elif files_without_match==False:
                                 print(colored(file_path, "magenta")+":"+line)
 
         if count:
             if is_file:
-                print(nr_of_matches)
+                if files_without_match==False:
+                    print(nr_of_matches)
             else:
-                print(colored(file_path, "magenta")+ ":" + str(nr_of_matches))
+                if files_without_match == False:
+                    print(colored(file_path, "magenta")+ ":" + str(nr_of_matches))
         if match==False and files_without_match==True: #!!!!!!!!!!!!!!!! de refacut
             print(colored(file_path, 'magenta'))
 
@@ -90,7 +92,7 @@ def search(pattern, file_path, is_file, regex, recursive, files_without_match, c
                 search(pattern, file_path + "\\" + f, False, regex, recursive, files_without_match, count, ignore_case)
     elif os.path.isdir(file_path) and not recursive:
         print("grep: %s: Is a directory" % file_path)
-        if count:
+        if count and files_without_match==False:
             print(0)
 
 parser=parser()
