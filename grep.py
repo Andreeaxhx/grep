@@ -81,7 +81,7 @@ def search(pattern, file_path, is_file, regex, recursive, files_without_match, c
             else:
                 if files_without_match == False:
                     print(colored(file_path, "magenta")+ ":" + str(nr_of_matches))
-        if match==False and files_without_match==True: #!!!!!!!!!!!!!!!! de refacut
+        if match==False and files_without_match==True:
             print(colored(file_path, 'magenta'))
 
     elif os.path.isdir(file_path) and recursive:
